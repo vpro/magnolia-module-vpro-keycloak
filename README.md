@@ -37,7 +37,7 @@ The setting _keycloak.principal.attribute_ depends on your realm configuration a
 users to login into your application. See Keycloaks [Java Adapters Config](https://keycloak.gitbooks.io/documentation/securing_apps/topics/oidc/java/java-adapter-config.html) for more information.
 The value is used as the principal on the Magnolia side and used to resolve further user information in the Jaas Chain (magnolia-sso) that is configured
 
-So in case of email _user@example.com_ would be used as the principal value in to lookup the user.
+So in case of email _user@example.com_ would be used as the principal value in the jaas chain to lookup the user.
 
 
 
