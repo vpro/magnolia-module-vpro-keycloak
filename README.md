@@ -12,7 +12,7 @@ For this module the dependency is:
       <version>1.0</version>
     </dependency>
     
-You need to configure a realm to use for your Magnolia instances. 
+You need to configure a realm in Keycloak to use for your Magnolia instances. 
 
 To be able to use keycloak in Magnolia it is necessary to register a client for each instance in your Keycloak installation.
 Use the following settings:
