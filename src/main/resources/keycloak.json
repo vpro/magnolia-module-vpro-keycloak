@@ -1,0 +1,16 @@
+{
+  "realm": "${keycloak.realm}",
+  "resource": "${keycloak.client.id}",
+  "auth-server-url": "${keycloak.auth.url}",
+  "ssl-required": "all",
+  "use-resource-role-mappings": false,
+  "credentials": {
+    "secret": "${keycloak.credentials.secret}"
+  },
+  "connection-pool-size": 16,
+  "allow-any-hostname": false,
+  "disable-trust-manager": false,
+  
+  "principal-attribute": "${keycloak.principal.attribute}",
+  "token-minimum-time-to-live": 10
+}
