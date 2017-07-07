@@ -7,6 +7,7 @@ package nl.vpro.magnolia.module.keycloak.security;
 import info.magnolia.cms.security.auth.callback.AbstractHttpClientCallback;
 import lombok.extern.slf4j.Slf4j;
 import nl.vpro.magnolia.module.keycloak.KeycloakService;
+import nl.vpro.magnolia.module.keycloak.util.SSLTerminatedRequestWrapper;
 import org.keycloak.adapters.AdapterDeploymentContext;
 import org.keycloak.adapters.KeycloakDeployment;
 import org.keycloak.adapters.servlet.FilterRequestAuthenticator;
@@ -42,7 +43,7 @@ public class KeycloakClientCallback extends AbstractHttpClientCallback {
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response) {
-        OIDCServletHttpFacade facade = new OIDCServletHttpFacade(request, response);
+        OIDCServletHttpFacade facade = new OIDCServletHttpFacade(new SSLTerminatedRequestWrapper(request), response);
         final AdapterDeploymentContext deploymentContext = keycloakService.getDeploymentContext();
         KeycloakDeployment deployment = deploymentContext.resolveDeployment(facade);
         if (deployment == null || !deployment.isConfigured()) {

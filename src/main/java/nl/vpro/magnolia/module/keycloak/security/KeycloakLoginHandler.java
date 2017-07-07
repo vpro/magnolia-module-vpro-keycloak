@@ -13,6 +13,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import nl.vpro.magnolia.module.keycloak.KeycloakService;
+import nl.vpro.magnolia.module.keycloak.util.SSLTerminatedRequestWrapper;
 import org.keycloak.adapters.AdapterDeploymentContext;
 import org.keycloak.adapters.AuthenticatedActionsHandler;
 import org.keycloak.adapters.KeycloakDeployment;
@@ -57,7 +58,7 @@ public class KeycloakLoginHandler extends LoginHandlerBase {
     @Override
     public LoginResult handle(HttpServletRequest request, HttpServletResponse response) {
         // Setup configuration
-        OIDCServletHttpFacade facade = new OIDCServletHttpFacade(request, response);
+        OIDCServletHttpFacade facade = new OIDCServletHttpFacade(new SSLTerminatedRequestWrapper(request), response);
         final AdapterDeploymentContext deploymentContext = keycloakService.getDeploymentContext();
         KeycloakDeployment deployment = deploymentContext.resolveDeployment(facade);
         if (deployment == null || !deployment.isConfigured()) {
