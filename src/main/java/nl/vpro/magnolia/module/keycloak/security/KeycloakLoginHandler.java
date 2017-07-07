@@ -98,7 +98,7 @@ public class KeycloakLoginHandler extends LoginHandlerBase {
         OIDCFilterSessionStore tokenStore = new OIDCFilterSessionStore(request, facade, 100000, deployment, idMapper);
         tokenStore.checkCurrentToken();
 
-        FilterRequestAuthenticator authenticator = new FilterRequestAuthenticator(deployment, tokenStore, facade, request, 8443);
+        FilterRequestAuthenticator authenticator = new FilterRequestAuthenticator(deployment, tokenStore, facade, request, keycloakService.getSslPort());
         AuthOutcome outcome = authenticator.authenticate();
         if (outcome == AuthOutcome.AUTHENTICATED) {
             log.debug("AUTHENTICATED");
@@ -123,6 +123,12 @@ public class KeycloakLoginHandler extends LoginHandlerBase {
         // Note this is for logouts triggered by keycloak, not a logout by the magnolia environment
         // TODO invalidate a users session
         // TODO Also do magnolia logout.
+/*
+
+            if (request.getSession(false) != null) {
+                request.getSession().invalidate();
+            }
+         */
     }
 
     private LoginResult jaasAuthenticate(HttpServletRequest request, HttpServletResponse response) {

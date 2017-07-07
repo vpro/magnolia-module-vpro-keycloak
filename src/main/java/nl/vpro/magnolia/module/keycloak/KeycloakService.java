@@ -31,6 +31,8 @@ public class KeycloakService {
     protected SessionIdMapper idMapper = new InMemorySessionIdMapper();
     protected NodesRegistrationManagement nodesRegistrationManagement;
 
+    private int sslPort = 443;
+
     @Inject
     public KeycloakService(MagnoliaConfigurationProperties magnoliaConfiguration) {
         this.magnoliaConfiguration = magnoliaConfiguration;
@@ -67,7 +69,14 @@ public class KeycloakService {
             deploymentContext = new AdapterDeploymentContext(kd);
             log.debug("Keycloak is using a per-deployment configuration.");
         }
-        // Ik kan in de keycloak source code geen echt gebruik vinden van de data die hier in de servlet context wordt gezet.
+        String property = null;
+        try {
+            property = magnoliaConfiguration.getProperty("keycloak.thisServer.sslPort");
+            sslPort = Integer.valueOf(property);
+        } catch (NumberFormatException nfe) {
+            log.warn("Can not parse ssl port value {}, using default of 443", property);
+        }
+        // I can't find any usage of the data that is set here on te servlet context.
         // filterConfig.getServletContext().setAttribute(AdapterDeploymentContext.class.getName(), deploymentContext);
         nodesRegistrationManagement = new NodesRegistrationManagement();
     }
@@ -91,5 +100,9 @@ public class KeycloakService {
 
     public NodesRegistrationManagement getNodesRegistrationManagement() {
         return nodesRegistrationManagement;
+    }
+
+    public int getSslPort() {
+        return sslPort;
     }
 }

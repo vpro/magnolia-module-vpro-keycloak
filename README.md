@@ -30,8 +30,10 @@ Also add the following parameters to your magnolia.properties :
     keycloak.credentials.secret=234234-234234-234234
     keycloak.principal.attribute=email
     keycloak.logout.url=${keycloak.auth.url}/realms/${keycloak.realm}/protocol/openid-connect/logout
+    keycloak.thisServer.sslPort=443
 
 The values of these settings can be found on the client information pages.
+Except for the last one which is the ssl port your server is accessible on. It defaults to the ssl port off 443, in development instances this is most likely 8443
  
 The setting _keycloak.principal.attribute_ depends on your realm configuration and how you want 
 users to login into your application. See Keycloaks [Java Adapters Config](https://keycloak.gitbooks.io/documentation/securing_apps/topics/oidc/java/java-adapter-config.html) for more information.

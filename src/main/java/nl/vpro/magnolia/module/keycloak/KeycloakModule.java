@@ -4,7 +4,6 @@
  */
 package nl.vpro.magnolia.module.keycloak;
 
-import info.magnolia.init.MagnoliaConfigurationProperties;
 import info.magnolia.module.ModuleLifecycle;
 import info.magnolia.module.ModuleLifecycleContext;
 import lombok.extern.slf4j.Slf4j;
@@ -18,11 +17,8 @@ import javax.inject.Inject;
 @Slf4j
 public class KeycloakModule implements ModuleLifecycle {
 
-    private final MagnoliaConfigurationProperties magnoliaConfiguration;
-
     @Inject
-    public KeycloakModule(MagnoliaConfigurationProperties magnoliaConfigurationProperties) {
-        magnoliaConfiguration = magnoliaConfigurationProperties;
+    public KeycloakModule() {
     }
 
 

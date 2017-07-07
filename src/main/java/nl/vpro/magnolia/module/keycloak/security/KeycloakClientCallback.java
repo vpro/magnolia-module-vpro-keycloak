@@ -55,7 +55,7 @@ public class KeycloakClientCallback extends AbstractHttpClientCallback {
         OIDCFilterSessionStore tokenStore = new OIDCFilterSessionStore(request, facade, 100000, deployment, idMapper);
         tokenStore.checkCurrentToken();
 
-        FilterRequestAuthenticator authenticator = new FilterRequestAuthenticator(deployment, tokenStore, facade, request, 8443);
+        FilterRequestAuthenticator authenticator = new FilterRequestAuthenticator(deployment, tokenStore, facade, request, keycloakService.getSslPort());
         AuthOutcome outcome = authenticator.authenticate();
         if (outcome != AuthOutcome.AUTHENTICATED) {
             AuthChallenge challenge = authenticator.getChallenge();
