@@ -1,3 +1,6 @@
+[![Build Status](https://travis-ci.org/vpro/magnolia-module-vpro-keycloak.svg?)](https://travis-ci.org/vpro/magnolia-module-vpro-keycloak)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/nl.vpro/magnolia-module-vpro-keycloak/badge.svg?style=plastic)](https://maven-badges.herokuapp.com/maven-central/nl.vpro/magnolia-module-vpro-keycloak)
+
 # magnolia-module-vpro-keycloak
 Magnolia Module to make it possible to login into Magnolia using Keycloak 
 
