@@ -1,0 +1,15 @@
+language: java
+env:
+ global:
+  - SONATYPE_USERNAME=mihxil
+  - secure: "WTbzvPxVB4QUz/Semfm6/z0/zuWCi2AKYySkaJ5BSSlJpvzQPnz7z6AVsViKuAGz2xGiJ+o5m+v9yCNeLqGVqQiE94xcn2smGwaJfH3z1OeWKyMXfdC0fnCtBVty1ZRwAsPHH79HkZNBJih2yzx0UxAcZi6Ba/H4b8chJwFusAEnPbTBFb+idW7nNkQCdV4wlrJHWNYqqgmOm6ltyRtZbR5GfdOfQkgyIBfcPRq++xrrSh6I2TcQk4JTQV1na/ycWG7ELSmZ/UqFpy0i15jf3IG9q2/FkKgL7NpfQ6sBa0iPhZUJRNt1gVUCSTrUammGCj7hsM6o7uAQC1Cxc8vo9p4Sf7PUuaxD29mnirLjiOsY/P7mxEYFiV1Jgej3ASZ3DAHu6G61r8Zt7b4dtnUzNRJLnPUcCg1lGkFG1fZEF6fyjZP1olXm8YqiTaLetfKZUbmqoYkg490uhHW0mR/i3DA7kCMSBuJA+yBiy+aafk1U3wg988OS/CmNbT/Q7Oh3dCqQkf71aJiO1520WMgtNIswXFtx+uav3d0k8IGP2DTMy4lOasi+wdXsUJ6BpNXV6aFZM1utB9o/TWFSXpsRV5NAaCxtcVQQ0Fk2hOQQh2XFZHRoQezHeQQaWS28MCA6tK1mvg+q4HrA85KaUcrscyPTaMYQbmZzz+ZVd6b8Lqs="
+
+jdk:
+- oraclejdk8
+
+sudo: false
+
+script: mvn clean test install
+
+after_success:
+- mvn -Pdeploy deploy --settings travis-settings.xml -DskipTests=true -Dgpg.skip=true  -B
