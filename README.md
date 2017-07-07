@@ -1,6 +1,7 @@
 # magnolia-module-vpro-keycloak
 Magnolia Module to make it possible to login into Magnolia using Keycloak 
 
+## Installation
 To use it you need to install this module as you do normally in Magnolia.
 (see [Installing a module](https://documentation.magnolia-cms.com/display/DOCS/Installing+a+module))
 
@@ -12,13 +13,16 @@ For this module the dependency is:
       <version>1.0</version>
     </dependency>
     
+## Configuration    
 You need to configure a realm in Keycloak to use for your Magnolia instances. 
 
+#### Registering clients
 To be able to use keycloak in Magnolia it is necessary to register a client for each instance in your Keycloak installation.
 Use the following settings:
 - Client Protocol is openid-connect
 - Access Type is confidential
 
+#### Magnolia configuration
 Make sure to set the root url to the url of your Magnolia instance.
 Do note that https is required to make logins work.
 
@@ -41,5 +45,14 @@ The value is used as the principal on the Magnolia side and used to resolve furt
 
 So in case of email _user@example.com_ would be used as the principal value in the jaas chain to lookup the user.
 
+#### Single signout support
+By default keycloak when a user logs send a logout request to all clients which have a session active for that user.
+This request does not have that users session associated with it so it requires the code to acquire the session through other
+means. For that a SessionListener is used.
 
+So to enable single signout, you need to add the session listener to your web.xml :
+
+      <listener>
+        <listener-class>nl.vpro.magnolia.module.keycloak.session.KeycloakSessionListener</listener-class>
+      </listener>
 
