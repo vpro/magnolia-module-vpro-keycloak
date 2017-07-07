@@ -1,0 +1,34 @@
+/*
+ * Copyright (C) 2017 All rights reserved
+ * VPRO The Netherlands
+ */
+package nl.vpro.magnolia.module.keycloak.session;
+
+import info.magnolia.objectfactory.Components;
+
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpSessionEvent;
+import javax.servlet.http.HttpSessionListener;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+/**
+ * @author rico
+ * @date 07/07/2017
+ */
+public class KeycloakSessionListener implements HttpSessionListener {
+
+    private final Map<String, HttpSession> httpSessions = new ConcurrentHashMap<>();
+
+    @Override
+    public void sessionCreated(HttpSessionEvent se) {
+        HttpSession session = se.getSession();
+        Components.getComponent(SessionStore.class).addSession(session);
+    }
+
+    @Override
+    public void sessionDestroyed(HttpSessionEvent se) {
+        HttpSession session = se.getSession();
+        Components.getComponent(SessionStore.class).removeSession(session);
+    }
+}

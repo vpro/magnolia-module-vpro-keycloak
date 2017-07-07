@@ -8,7 +8,6 @@ import info.magnolia.init.MagnoliaConfigurationProperties;
 import lombok.extern.slf4j.Slf4j;
 import nl.vpro.magnolia.module.keycloak.util.MagnoliaPropertyResolver;
 import org.keycloak.adapters.*;
-import org.keycloak.adapters.spi.InMemorySessionIdMapper;
 import org.keycloak.adapters.spi.SessionIdMapper;
 
 import javax.inject.Inject;
@@ -26,16 +25,17 @@ import java.io.InputStream;
 public class KeycloakService {
 
     private final MagnoliaConfigurationProperties magnoliaConfiguration;
+    private final SessionIdMapper idMapper;
 
-    protected AdapterDeploymentContext deploymentContext;
-    protected SessionIdMapper idMapper = new InMemorySessionIdMapper();
-    protected NodesRegistrationManagement nodesRegistrationManagement;
+    private AdapterDeploymentContext deploymentContext;
+    private NodesRegistrationManagement nodesRegistrationManagement;
 
     private int sslPort = 443;
 
     @Inject
-    public KeycloakService(MagnoliaConfigurationProperties magnoliaConfiguration) {
+    public KeycloakService(MagnoliaConfigurationProperties magnoliaConfiguration, SessionIdMapper idMapper) {
         this.magnoliaConfiguration = magnoliaConfiguration;
+        this.idMapper = idMapper;
         init();
     }
 
@@ -47,7 +47,7 @@ public class KeycloakService {
                 deploymentContext = new AdapterDeploymentContext(configResolver);
                 log.info("Using {} to resolve Keycloak configuration on a per-request basis.", configResolverClass);
             } catch (Exception ex) {
-                log.info( "The specified resolver {} could NOT be loaded. Keycloak is unconfigured and will deny all requests. Reason: {}", new Object[]{configResolverClass, ex.getMessage()});
+                log.info("The specified resolver {} could NOT be loaded. Keycloak is unconfigured and will deny all requests. Reason: {}", new Object[]{configResolverClass, ex.getMessage()});
                 deploymentContext = new AdapterDeploymentContext(new KeycloakDeployment());
             }
         } else {

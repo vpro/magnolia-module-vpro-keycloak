@@ -13,5 +13,15 @@
       <implementation>nl.vpro.magnolia.module.keycloak.KeycloakService</implementation>
       <scope>singleton</scope>
     </component>
+    <component>
+      <type>nl.vpro.magnolia.module.keycloak.session.SessionStore</type>
+      <implementation>nl.vpro.magnolia.module.keycloak.session.HttpSessionInMemoryIdMapper</implementation>
+      <scope>singleton</scope>
+    </component>
+    <component>
+      <type>org.keycloak.adapters.spi.SessionIdMapper</type>
+      <implementation>nl.vpro.magnolia.module.keycloak.session.HttpSessionInMemoryIdMapper</implementation>
+      <scope>singleton</scope>
+    </component>
   </components>
 </module>

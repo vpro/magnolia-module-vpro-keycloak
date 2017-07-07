@@ -38,7 +38,7 @@ import java.util.List;
 public class KeycloakLoginHandler extends LoginHandlerBase {
     // used in : /server/filters/login/loginHandlers
 
-    public static String KEYCLOAK_LOGIN_HANDLER_USED="keycloakLoginHandlerUsed";
+    public static String KEYCLOAK_LOGIN_HANDLER_USED = "keycloakLoginHandlerUsed";
 
     private final KeycloakService keycloakService;
 
@@ -81,9 +81,7 @@ public class KeycloakLoginHandler extends LoginHandlerBase {
                 for (String id : ids) {
                     log.debug("removed idMapper: " + id);
                     idMapper.removeSession(id);
-                    logout(id);
                 }
-
             }
         }, deploymentContext, facade);
 
@@ -119,18 +117,6 @@ public class KeycloakLoginHandler extends LoginHandlerBase {
         return LoginResult.NOT_HANDLED;
     }
 
-    private void logout(String id) {
-        // Note this is for logouts triggered by keycloak, not a logout by the magnolia environment
-        // TODO invalidate a users session
-        // TODO Also do magnolia logout.
-/*
-
-            if (request.getSession(false) != null) {
-                request.getSession().invalidate();
-            }
-         */
-    }
-
     private LoginResult jaasAuthenticate(HttpServletRequest request, HttpServletResponse response) {
         request.setAttribute(KEYCLOAK_LOGIN_HANDLER_USED, true);
 
@@ -161,6 +147,4 @@ public class KeycloakLoginHandler extends LoginHandlerBase {
             log.error("Unable to write to response body.", e);
         }
     }
-
-
 }
