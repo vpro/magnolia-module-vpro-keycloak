@@ -34,11 +34,12 @@
   </developers>
 
   <scm>
-    <connection>scm:git@github.com:vpro/magnolia-module-vpro-keycloak.git</connection>
-    <developerConnection>scm:git@github.com:vpro/magnolia-module-vpro-keycloak.git</developerConnection>
+    <connection>scm:git:git://git@github.com/vpro/magnolia-module-vpro-keycloak.git</connection>
+    <developerConnection>scm:git:git@github.com:vpro/magnolia-module-vpro-keycloak.git</developerConnection>
     <url>https://github.com/vpro/magnolia-module-vpro-keycloak</url>
     <tag>HEAD</tag>
   </scm>
+
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
