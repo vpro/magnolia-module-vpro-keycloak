@@ -61,6 +61,7 @@ public class HttpSessionInMemoryIdMapper implements SessionIdMapper, SessionStor
     public void removeSession(String session) {
         idMapper.removeSession(session);
         log.debug("Removed session {}", session);
+        // TODO session is the sso session id not the http session id
         HttpSession httpSession = httpSessions.get(session);
         if (httpSession != null) {
             log.debug("Invalidated session {}", httpSession.getId());
@@ -75,7 +76,6 @@ public class HttpSessionInMemoryIdMapper implements SessionIdMapper, SessionStor
 
     public void removeSession(HttpSession session) {
         httpSessions.remove(session.getId());
-        idMapper.removeSession(session.getId());
         log.debug("Removed session from store {}", session.getId());
     }
 

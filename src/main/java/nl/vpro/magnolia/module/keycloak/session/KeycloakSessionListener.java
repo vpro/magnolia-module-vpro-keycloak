@@ -9,16 +9,12 @@ import info.magnolia.objectfactory.Components;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionEvent;
 import javax.servlet.http.HttpSessionListener;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author rico
  * @date 07/07/2017
  */
 public class KeycloakSessionListener implements HttpSessionListener {
-
-    private final Map<String, HttpSession> httpSessions = new ConcurrentHashMap<>();
 
     @Override
     public void sessionCreated(HttpSessionEvent se) {
