@@ -108,9 +108,6 @@ public class KeycloakLoginHandler extends LoginHandlerBase {
             if (actions.handledRequest()) {
                 return new LoginResult(LoginResult.STATUS_IN_PROCESS);
             } else {
-                // Do we need this ?
-                //HttpServletRequestWrapper wrapper = tokenStore.buildWrapper();
-                // chain.doFilter(wrapper, res);
                 return jaasAuthenticate(request, response);
             }
         }
