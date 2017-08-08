@@ -14,11 +14,11 @@ import javax.inject.Singleton;
 import javax.security.auth.Subject;
 import javax.servlet.http.HttpSession;
 import java.security.Principal;
-import java.util.Collections;
-import java.util.HashSet;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 /**
  * @author rico
@@ -29,8 +29,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class HttpSessionInMemoryIdMapper implements SessionIdMapper, SessionStore {
     private SessionIdMapper idMapper = new InMemorySessionIdMapper();
     private final Map<String, HttpSession> httpSessions = new ConcurrentHashMap<>();
-    private final Map<String, Set<String>> principalToDeletedSessionId = new ConcurrentHashMap<>();
-    private final Map<String, String> sessionToSso = new ConcurrentHashMap<>();
+    private final Map<String, String> sessionToPrincipal = new ConcurrentHashMap<>();
 
 
     @Inject
@@ -46,8 +45,7 @@ public class HttpSessionInMemoryIdMapper implements SessionIdMapper, SessionStor
     @Override
     public void clear() {
         idMapper.clear();
-        sessionToSso.clear();
-        principalToDeletedSessionId.clear();
+        sessionToPrincipal.clear();
         httpSessions.values().forEach(HttpSession::invalidate);
     }
 
@@ -63,23 +61,46 @@ public class HttpSessionInMemoryIdMapper implements SessionIdMapper, SessionStor
 
     @Override
     public void map(String sso, String principal, String session) {
-        log.debug("Mapped (added) session {} {} {}", sso, principal, session);
-        if (sso != null) {
-            sessionToSso.put(session, sso);
-        }
+        sessionToPrincipal.put(session, principal);
         idMapper.map(sso, principal, session);
+        log.debug("Mapped (added) session {} {} {}", sso, principal, session);
     }
 
     @Override
     public void removeSession(String session) {
         idMapper.removeSession(session);
-        log.debug("Removed session {}", session);
+        String principal = sessionToPrincipal.get(session);
+        if (principal != null) {
+            sessionsForPrincipal(principal).forEach(httpSession -> {
+                httpSession.invalidate();
+                idMapper.removeSession(httpSession.getId());
+                log.debug("Invalidated session {}", httpSession.getId());
+            });
+        }
         HttpSession httpSession = httpSessions.get(session);
         if (httpSession != null) {
             log.debug("Invalidated session {}", httpSession.getId());
             httpSession.invalidate();
         }
-        sessionToSso.remove(session);
+        sessionToPrincipal.remove(session);
+        log.debug("Removed session {}", session);
+    }
+
+    private Collection<HttpSession> sessionsForPrincipal(String principal) {
+        return httpSessions.values().stream().filter(session -> principal.equals(principalForSession(session))).collect(Collectors.toList());
+    }
+
+    private String principalForSession(HttpSession session) {
+        javax.security.auth.Subject subject = (Subject) session.getAttribute("javax.security.auth.Subject");
+        if (subject != null) {
+            for (Principal principal : subject.getPrincipals()) {
+
+                if (principal instanceof User) {
+                    return principal.getName();
+                }
+            }
+        }
+        return null;
     }
 
     // Session store methods
@@ -88,29 +109,6 @@ public class HttpSessionInMemoryIdMapper implements SessionIdMapper, SessionStor
     public void addSession(HttpSession session) {
         final String sessionId = session.getId();
         httpSessions.put(sessionId, session);
-        String principal = principalFromSession(session);
-        if (principal != null) {
-            Set<String> sessions = idMapper.getUserSessions(principal);
-            if (!sessions.contains(sessionId)) {
-                final Set<String> deletedSessions = principalToDeletedSessionId.get(principal);
-                if (deletedSessions != null) {
-                    sessions.forEach(idmapSession -> {
-                        if (deletedSessions.contains(idmapSession)) {
-                            String sso=sessionToSso.get(idmapSession);
-                            map(sso, principal, sessionId);
-                            deletedSessions.remove(idmapSession);
-                            idMapper.removeSession(idmapSession);
-                            sessionToSso.remove(idmapSession);
-                        }
-                    });
-                    if (deletedSessions.isEmpty()) {
-                        principalToDeletedSessionId.remove(principal);
-                    }
-                }
-            } else {
-                principalToDeletedSessionId.remove(principal);
-            }
-        }
         log.debug("Added session to store {}", sessionId);
     }
 
@@ -118,24 +116,7 @@ public class HttpSessionInMemoryIdMapper implements SessionIdMapper, SessionStor
     public void removeSession(HttpSession session) {
         final String sessionId = session.getId();
         httpSessions.remove(sessionId);
-
-        String principal = principalFromSession(session);
-        final Set<String> deletedUserSessions = principalToDeletedSessionId.computeIfAbsent(principal, k -> Collections.synchronizedSet(new HashSet<>()));
-        deletedUserSessions.add(sessionId);
-        principalToDeletedSessionId.put(principal, deletedUserSessions);
         log.debug("Removed session from store {}", session.getId());
-    }
-
-    private String principalFromSession(HttpSession session) {
-        javax.security.auth.Subject subject = (Subject) session.getAttribute("javax.security.auth.Subject");
-        if (subject != null) {
-            for (Principal principal : subject.getPrincipals()) {
-                if (principal instanceof User) {
-                    return principal.getName();
-                }
-            }
-        }
-        return null;
     }
 
     @Override
