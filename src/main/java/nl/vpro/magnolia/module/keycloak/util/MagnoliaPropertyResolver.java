@@ -4,14 +4,16 @@
  */
 package nl.vpro.magnolia.module.keycloak.util;
 
-import info.magnolia.init.MagnoliaConfigurationProperties;
+import info.magnolia.init.PropertySource;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.text.StrLookup;
-import org.apache.commons.lang3.text.StrSubstitutor;
 
 import java.io.IOException;
 import java.io.InputStream;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.text.StringSubstitutor;
+
+import static org.apache.commons.text.StringSubstitutor.*;
 
 /**
  * @author rico
@@ -20,14 +22,9 @@ import java.io.InputStream;
 @Slf4j
 public class MagnoliaPropertyResolver {
 
-    public static InputStream resolve(MagnoliaConfigurationProperties properties, InputStream in) {
-        StrSubstitutor substitutor = new StrSubstitutor(new StrLookup<String>() {
-            @Override
-            public String lookup(String key) {
-                return properties.getProperty(key);
-            }
-        });
+    public static InputStream resolve(PropertySource properties, InputStream in) {
         try {
+            StringSubstitutor substitutor = new StringSubstitutor(properties::getProperty, DEFAULT_PREFIX, DEFAULT_SUFFIX, DEFAULT_ESCAPE);
             return IOUtils.toInputStream(substitutor.replace(IOUtils.toString(in)));
         } catch (IOException e) {
             log.error("Could not load inputstream {}", in);
