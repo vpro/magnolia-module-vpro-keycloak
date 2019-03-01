@@ -36,7 +36,7 @@
     <connection>scm:git:git://git@github.com/vpro/magnolia-module-vpro-keycloak.git</connection>
     <developerConnection>scm:git:git@github.com:vpro/magnolia-module-vpro-keycloak.git</developerConnection>
     <url>https://github.com/vpro/magnolia-module-vpro-keycloak</url>
-    <tag>HEAD</tag>
+    <tag>1.2-SNAPSHOT</tag>
   </scm>
 
 
