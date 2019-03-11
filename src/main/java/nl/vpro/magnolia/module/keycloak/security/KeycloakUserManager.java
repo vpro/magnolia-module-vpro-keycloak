@@ -46,6 +46,10 @@ public class KeycloakUserManager extends ExternalUserManager {
     @Setter
     private String groupPrefix = "";
 
+    @Getter
+    @Setter
+    private String keycloakRealm = "";
+
     private final Provider<PrincipalSessionStore> principalStoreProvider;
 
     private final Provider<SecuritySupport> securitySupportProvider;
@@ -67,7 +71,7 @@ public class KeycloakUserManager extends ExternalUserManager {
 
     @Override
     public User getUser(String name) throws UnsupportedOperationException {
-        return getUser(name, realmName).orElse(null);
+        return getUser(name, keycloakRealm).orElse(null);
     }
 
     @CacheResult(cacheName = CACHE_NAME)
