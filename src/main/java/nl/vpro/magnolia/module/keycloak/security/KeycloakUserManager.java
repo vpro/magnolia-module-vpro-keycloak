@@ -89,6 +89,7 @@ public class KeycloakUserManager extends ExternalUserManager {
         properties.put(Entity.EMAIL, token.getEmail());
         properties.put(Entity.FULL_NAME, token.getPreferredUsername());
         properties.put("id", token.getId());
+        properties.put("realm", keycloakRealm);
 
         // We map keycloak groups to roles, as that is more convenient to use
         // Then we collect all subgroups and their roles.
