@@ -148,7 +148,7 @@ public class KeycloakLoginHandler extends LoginHandlerBase {
                 String deploymentUrl = deployment.getRealmInfoUrl();
                 if (!Objects.equals(tokenUrl, deploymentUrl)) {
                     log.error("Deployment is not correct for this token: {} , {}", tokenUrl, deploymentUrl);
-                    log.error("Incoming url is : {} ", request.getRequestURL()+" "+request.getRequestURI());
+                    log.error("Incoming url is : {} ", request.getRequestURL()+"?"+request.getQueryString());
                 }
             }
             if (facade.isEnded()) {
