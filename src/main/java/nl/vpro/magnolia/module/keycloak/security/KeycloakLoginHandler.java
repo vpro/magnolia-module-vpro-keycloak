@@ -144,6 +144,12 @@ public class KeycloakLoginHandler extends LoginHandlerBase {
             if (session != null) {
                 OIDCFilterSessionStore.SerializableKeycloakAccount account = (OIDCFilterSessionStore.SerializableKeycloakAccount) session.getAttribute(KeycloakAccount.class.getName());
                 principalSessionStore.add(account.getPrincipal().getName(), deployment.getRealm(), account);
+                String tokenUrl = account.getKeycloakSecurityContext().getToken().getIssuer();
+                String deploymentUrl = deployment.getRealmInfoUrl();
+                if (!Objects.equals(tokenUrl, deploymentUrl)) {
+                    log.error("Deployment is not correct for this token: {} , {}", tokenUrl, deploymentUrl);
+                    log.error("Incoming url is : {} ", request.getRequestURL()+" "+request.getRequestURI());
+                }
             }
             if (facade.isEnded()) {
                 return jaasAuthenticate(request, response, deployment);
