@@ -1,0 +1,15 @@
+config:
+  defaultRealm: 'internal'
+  realms:
+    public:
+      realmName: 'public'
+      jaasChain: 'magnolia-sso'
+      voters:
+        op: 'OR'
+        uri:
+          class: nl.vpro.magnolia.module.keycloak.voting.voters.URIStartsWithVoter
+          pattern: '/private/area'
+        host:
+          class: nl.vpro.magnolia.module.keycloak.voting.voters.RequestHeaderPatternRegexVoter
+          headerName: Host
+          pattern: (www.)?example.com

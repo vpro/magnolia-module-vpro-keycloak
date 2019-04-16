@@ -5,16 +5,20 @@
 package nl.vpro.magnolia.module.keycloak;
 
 import info.magnolia.init.MagnoliaConfigurationProperties;
+import info.magnolia.objectfactory.Components;
 import lombok.extern.slf4j.Slf4j;
-import nl.vpro.magnolia.module.keycloak.util.MagnoliaPropertyResolver;
-import org.keycloak.adapters.*;
-import org.keycloak.adapters.spi.SessionIdMapper;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
+import org.keycloak.adapters.*;
+import org.keycloak.adapters.spi.SessionIdMapper;
+
+import nl.vpro.magnolia.module.keycloak.util.MagnoliaPropertyResolver;
 
 /**
  * @author rico
@@ -41,10 +45,10 @@ public class KeycloakService {
 
     private void init() {
         String configResolverClass = magnoliaConfiguration.getProperty("keycloak.config.resolver");
-        if (configResolverClass != null) {
+        if (configResolverClass != null && !configResolverClass.isEmpty()) {
             try {
-                KeycloakConfigResolver configResolver = (KeycloakConfigResolver) getClass().getClassLoader().loadClass(configResolverClass).newInstance();
-                deploymentContext = new AdapterDeploymentContext(configResolver);
+                final Object resolverObject = Components.getComponent(getClass().getClassLoader().loadClass(configResolverClass));
+                deploymentContext = new AdapterDeploymentContext((KeycloakConfigResolver) resolverObject);
                 log.info("Using {} to resolve Keycloak configuration on a per-request basis.", configResolverClass);
             } catch (Exception ex) {
                 log.info("The specified resolver {} could NOT be loaded. Keycloak is unconfigured and will deny all requests. Reason: {}", new Object[]{configResolverClass, ex.getMessage()});
@@ -53,7 +57,7 @@ public class KeycloakService {
         } else {
             String fp = magnoliaConfiguration.getProperty("keycloak.config.file");
             InputStream is;
-            if (fp != null) {
+            if (fp != null && !fp.isEmpty()) {
                 try {
                     is = new FileInputStream(fp);
                 } catch (FileNotFoundException e) {

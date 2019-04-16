@@ -6,19 +6,21 @@ package nl.vpro.magnolia.module.keycloak.session;
 
 import info.magnolia.cms.security.User;
 import lombok.extern.slf4j.Slf4j;
-import org.keycloak.adapters.spi.InMemorySessionIdMapper;
-import org.keycloak.adapters.spi.SessionIdMapper;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-import javax.security.auth.Subject;
-import javax.servlet.http.HttpSession;
 import java.security.Principal;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import javax.security.auth.Subject;
+import javax.servlet.http.HttpSession;
+
+import org.keycloak.adapters.spi.InMemorySessionIdMapper;
+import org.keycloak.adapters.spi.SessionIdMapper;
 
 /**
  * @author rico
@@ -94,7 +96,6 @@ public class HttpSessionInMemoryIdMapper implements SessionIdMapper, SessionStor
         javax.security.auth.Subject subject = (Subject) session.getAttribute("javax.security.auth.Subject");
         if (subject != null) {
             for (Principal principal : subject.getPrincipals()) {
-
                 if (principal instanceof User) {
                     return principal.getName();
                 }

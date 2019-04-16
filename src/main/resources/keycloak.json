@@ -12,5 +12,9 @@
   "disable-trust-manager": false,
   
   "principal-attribute": "${keycloak.principal.attribute}",
-  "token-minimum-time-to-live": 10
+  "token-minimum-time-to-live": 10,
+
+  "register-node-at-startup": ${keycloak.register.node.at.startup},
+  "register-node-period": ${keycloak.register.node.period}
 }
+

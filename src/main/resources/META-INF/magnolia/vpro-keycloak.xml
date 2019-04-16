@@ -5,7 +5,7 @@
   <displayName>VPRO Magnolia Keycloak module</displayName>
   <class>nl.vpro.magnolia.module.keycloak.KeycloakModule</class>
   <versionHandler>nl.vpro.magnolia.module.keycloak.setup.KeycloakModuleVersionHandler</versionHandler>
-  <version>1.0</version>
+  <version>1.2</version>
   <components>
     <id>main</id>
     <component>
@@ -23,5 +23,25 @@
       <implementation>nl.vpro.magnolia.module.keycloak.session.HttpSessionInMemoryIdMapper</implementation>
       <scope>singleton</scope>
     </component>
+    <component>
+      <type>nl.vpro.magnolia.module.keycloak.session.PrincipalSessionStore</type>
+      <implementation>nl.vpro.magnolia.module.keycloak.session.PrincipalSessionStore</implementation>
+      <scope>singleton</scope>
+    </component>
+    <component>
+      <type>nl.vpro.magnolia.module.keycloak.config.MagnoliaKeycloakConfigResolver</type>
+      <implementation>nl.vpro.magnolia.module.keycloak.config.MagnoliaKeycloakConfigResolver</implementation>
+      <scope>singleton</scope>
+    </component>
   </components>
+  <dependencies>
+    <dependency>
+      <name>core</name>
+      <version>5.0/*</version>
+    </dependency>
+    <dependency>
+      <name>cache</name>
+      <version>5.0/*</version>
+    </dependency>
+  </dependencies>
 </module>
