@@ -52,7 +52,7 @@ import nl.vpro.magnolia.module.keycloak.util.SSLTerminatedRequestWrapper;
 public class KeycloakLoginHandler extends LoginHandlerBase {
     // used in : /server/filters/login/loginHandlers
 
-    public static String KEYCLOAK_LOGIN_HANDLER_USED = "keycloakLoginHandlerUsed";
+    public static final String KEYCLOAK_LOGIN_HANDLER_USED = "keycloakLoginHandlerUsed";
 
     private final KeycloakService keycloakService;
 
@@ -116,15 +116,13 @@ public class KeycloakLoginHandler extends LoginHandlerBase {
         final HttpSession session = request.getSession(false);
         if (session != null) {
             Subject subject = (Subject) session.getAttribute(Subject.class.getName());
-            if (subject != null) {
-                if (session.getAttribute(KeycloakAccount.class.getName()) == null) {
-                    final User principal = PrincipalUtil.findPrincipal(subject, User.class);
-                    if (principal != null) {
-                        OIDCFilterSessionStore.SerializableKeycloakAccount sAccount = principalSessionStore.get(principal.getName(), deployment.getRealm());
-                        if (sAccount != null) {
-                            session.setAttribute(KeycloakAccount.class.getName(), sAccount);
-                            session.setAttribute(KeycloakSecurityContext.class.getName(), sAccount.getKeycloakSecurityContext());
-                        }
+            if (subject != null && session.getAttribute(KeycloakAccount.class.getName()) == null) {
+                final User principal = PrincipalUtil.findPrincipal(subject, User.class);
+                if (principal != null) {
+                    OIDCFilterSessionStore.SerializableKeycloakAccount sAccount = principalSessionStore.get(principal.getName(), deployment.getRealm());
+                    if (sAccount != null) {
+                        session.setAttribute(KeycloakAccount.class.getName(), sAccount);
+                        session.setAttribute(KeycloakSecurityContext.class.getName(), sAccount.getKeycloakSecurityContext());
                     }
                 }
             }
@@ -148,7 +146,7 @@ public class KeycloakLoginHandler extends LoginHandlerBase {
                 String deploymentUrl = deployment.getRealmInfoUrl();
                 if (!Objects.equals(tokenUrl, deploymentUrl)) {
                     log.error("Deployment is not correct for this token: {} , {}", tokenUrl, deploymentUrl);
-                    log.error("Incoming url is : {} ", request.getRequestURL()+"?"+request.getQueryString());
+                    log.error("Incoming url is : {} ", request.getRequestURL() + "?" + request.getQueryString());
                 }
             }
             if (facade.isEnded()) {
@@ -176,14 +174,14 @@ public class KeycloakLoginHandler extends LoginHandlerBase {
 
         CredentialsCallbackHandler callbackHandler = new PlainTextCallbackHandler(principalName, "".toCharArray());
 
-        final String jaasChain = keycloakModule.getRealms().values().stream()
+        final String configuredJaasChain = keycloakModule.getRealms().values().stream()
             .filter(config -> Objects.equals(keycloakDeployment.getRealm(), config.getRealmName()))
             .findFirst()
             .map(KeycloakConfiguration::getJaasChain)
             .filter(StringUtils::isNotEmpty)
             .orElse(getJaasChain());
 
-        LoginResult result = authenticate(callbackHandler, jaasChain);
+        LoginResult result = authenticate(callbackHandler, configuredJaasChain);
         if (result.getSubject() == null) {
             handleUnrecognizedUser(request, response);
             // return STATUS_IN_PROCESS so that LoginFilter will halt the filter chain

@@ -22,6 +22,9 @@ import static org.apache.commons.text.StringSubstitutor.*;
 @Slf4j
 public class MagnoliaPropertyResolver {
 
+    private MagnoliaPropertyResolver() {
+    }
+
     public static InputStream resolve(PropertySource properties, InputStream in) {
         try {
             StringSubstitutor substitutor = new StringSubstitutor(properties::getProperty, DEFAULT_PREFIX, DEFAULT_SUFFIX, DEFAULT_ESCAPE);

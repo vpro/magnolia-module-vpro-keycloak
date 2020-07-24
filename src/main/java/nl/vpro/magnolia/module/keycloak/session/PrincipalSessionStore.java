@@ -21,6 +21,7 @@ public class PrincipalSessionStore {
 
     @Inject
     public PrincipalSessionStore() {
+        // Injection
     }
 
     public void add(String subject, String realm, OIDCFilterSessionStore.SerializableKeycloakAccount a) {

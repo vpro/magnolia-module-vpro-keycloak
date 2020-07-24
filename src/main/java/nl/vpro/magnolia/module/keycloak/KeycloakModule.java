@@ -41,10 +41,12 @@ public class KeycloakModule implements ModuleLifecycle {
 
     @Override
     public void start(ModuleLifecycleContext moduleLifecycleContext) {
+        // Nothing
     }
 
     @Override
     public void stop(ModuleLifecycleContext moduleLifecycleContext) {
+        // Nothing
     }
 
     public String getDefaultRealm() {

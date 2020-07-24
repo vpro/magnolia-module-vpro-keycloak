@@ -24,6 +24,8 @@ public class MagnoliaRealmPropertyResolver {
 
     private static final String PREFIX = "keycloak.";
 
+    private MagnoliaRealmPropertyResolver() {}
+
     public static InputStream resolve(String realm, PropertySource properties, InputStream in) {
         try {
             StringSubstitutor substitutor = new StringSubstitutor(key -> {

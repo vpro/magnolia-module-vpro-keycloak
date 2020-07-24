@@ -58,10 +58,12 @@ public class KeycloakUserManager extends ExternalUserManager {
         this.nodeNameHelper = nodeNameHelper;
     }
 
+    @Override
     public User getUser(Subject subject) throws UnsupportedOperationException {
         throw new UnsupportedOperationException("Method getUser(Subject) is deprecated");
     }
 
+    @Override
     public User getUser(Map<String, String> properties, GroupList groupList, RoleList roleList) {
         throw new UnsupportedOperationException(
             "Method getUser(Map<String,String>, GroupList, RoleList) is not supported");

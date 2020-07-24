@@ -11,10 +11,6 @@ import info.magnolia.jaas.sp.AbstractLoginModule;
 import info.magnolia.jaas.sp.UserAwareLoginModule;
 import info.magnolia.objectfactory.Components;
 
-import java.util.Map;
-
-import javax.security.auth.Subject;
-import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.login.LoginException;
 
 /**
@@ -23,11 +19,6 @@ import javax.security.auth.login.LoginException;
 public class KeycloakLoginModule extends AbstractLoginModule implements UserAwareLoginModule {
 
     private User user;
-
-    @Override
-    public void initialize(Subject subject, CallbackHandler callbackHandler, Map sharedState, Map options) {
-        super.initialize(subject, callbackHandler, sharedState, options);
-    }
 
     @Override
     public void validateUser() throws LoginException {

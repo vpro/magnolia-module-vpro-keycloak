@@ -27,7 +27,8 @@ import nl.vpro.magnolia.module.keycloak.security.KeycloakUserManager;
  */
 public class KeycloakModuleVersionHandler extends DefaultModuleVersionHandler {
 
-    private Task setLogoutFilterClass = new CheckAndModifyPropertyValueTask("/server/filters/logout", "class", LogoutFilter.class.getName(), KeycloakLogoutFilter.class.getName());
+    public static final String PROPERTY_CLASS = "class";
+    private Task setLogoutFilterClass = new CheckAndModifyPropertyValueTask("/server/filters/logout", PROPERTY_CLASS, LogoutFilter.class.getName(), KeycloakLogoutFilter.class.getName());
 
     public KeycloakModuleVersionHandler() {
         register(DeltaBuilder.update("1.0", "")
@@ -51,10 +52,10 @@ public class KeycloakModuleVersionHandler extends DefaultModuleVersionHandler {
             setLogoutFilterClass,
             new CreateNodeTask("", "/server/filters/login/loginHandlers", "keycloak", NodeTypes.ContentNode.NAME),
             new SetPropertyTask(RepositoryConstants.CONFIG, "/server/filters/login/loginHandlers/keycloak", "jaasChain", "magnolia-sso"),
-            new SetPropertyTask(RepositoryConstants.CONFIG, "/server/filters/login/loginHandlers/keycloak", "class", KeycloakLoginHandler.class.getName()),
+            new SetPropertyTask(RepositoryConstants.CONFIG, "/server/filters/login/loginHandlers/keycloak", PROPERTY_CLASS, KeycloakLoginHandler.class.getName()),
             new CreateNodeTask("", "/server/filters/securityCallback/clientCallbacks", "keycloak", NodeTypes.ContentNode.NAME),
             new OrderNodeBeforeTask("/server/filters/securityCallback/clientCallbacks/keycloak", "form"),
-            new SetPropertyTask(RepositoryConstants.CONFIG, "/server/filters/securityCallback/clientCallbacks/keycloak", "class", KeycloakClientCallback.class.getName())
+            new SetPropertyTask(RepositoryConstants.CONFIG, "/server/filters/securityCallback/clientCallbacks/keycloak", PROPERTY_CLASS, KeycloakClientCallback.class.getName())
         );
     }
 
