@@ -15,7 +15,7 @@ For this module the dependency is:
     <dependency>
       <groupId>nl.vpro.magnolia</groupId>
       <artifactId>magnolia-module-vpro-keycloak</artifactId>
-      <version>1.5</version>
+      <version>1.7</version>
     </dependency>
     
 ## Configuration    

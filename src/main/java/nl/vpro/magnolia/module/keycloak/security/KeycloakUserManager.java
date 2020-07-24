@@ -10,6 +10,7 @@ import info.magnolia.cms.security.auth.GroupList;
 import info.magnolia.cms.security.auth.RoleList;
 import info.magnolia.jaas.principal.GroupListImpl;
 import info.magnolia.jaas.principal.RoleListImpl;
+import info.magnolia.jcr.util.NodeNameHelper;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -37,27 +38,24 @@ import nl.vpro.magnolia.module.keycloak.session.PrincipalSessionStore;
 @Slf4j
 public class KeycloakUserManager extends ExternalUserManager {
     private static final String CACHE_NAME = "keycloak-user-manager-cache";
-
+    private final Provider<PrincipalSessionStore> principalStoreProvider;
+    private final Provider<SecuritySupport> securitySupportProvider;
+    private final NodeNameHelper nodeNameHelper;
     @Getter
     @Setter
     private String realmName;
-
     @Getter
     @Setter
     private String groupPrefix = "";
-
     @Getter
     @Setter
     private String keycloakRealm = "";
 
-    private final Provider<PrincipalSessionStore> principalStoreProvider;
-
-    private final Provider<SecuritySupport> securitySupportProvider;
-
     @Inject
-    public KeycloakUserManager(Provider<PrincipalSessionStore> principalStoreProvider, Provider<SecuritySupport> securitySupportProvider) {
+    public KeycloakUserManager(Provider<PrincipalSessionStore> principalStoreProvider, Provider<SecuritySupport> securitySupportProvider, NodeNameHelper nodeNameHelper) {
         this.principalStoreProvider = principalStoreProvider;
         this.securitySupportProvider = securitySupportProvider;
+        this.nodeNameHelper = nodeNameHelper;
     }
 
     public User getUser(Subject subject) throws UnsupportedOperationException {
@@ -95,7 +93,7 @@ public class KeycloakUserManager extends ExternalUserManager {
         // Then we collect all subgroups and their roles.
         GroupList groups = new GroupListImpl();
         final RoleList roles = new RoleListImpl();
-        account.getRoles().stream().map(role -> groupPrefix + role).forEach(groupName -> collect(groupName, groups, roles));
+        account.getRoles().stream().map(nodeNameHelper::getValidatedName).map(role -> groupPrefix + role).forEach(groupName -> collect(groupName, groups, roles));
         return new KeycloakUser(properties, groups, roles);
     }
 
