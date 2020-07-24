@@ -5,7 +5,7 @@
   <displayName>VPRO Magnolia Keycloak module</displayName>
   <class>nl.vpro.magnolia.module.keycloak.KeycloakModule</class>
   <versionHandler>nl.vpro.magnolia.module.keycloak.setup.KeycloakModuleVersionHandler</versionHandler>
-  <version>1.2</version>
+  <version>1.7</version>
   <components>
     <id>main</id>
     <component>
