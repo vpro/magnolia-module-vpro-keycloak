@@ -1,6 +1,4 @@
 [source,bash]
 ----
-mvn release:branch -DbranchName=REL-1.7-SNAPSHOT -DdevelopmentVersion=1.8-SNAPSHOT
-git checkout REL-1.7-SNAPSHOT
-mvn -Pdeploy release:prepare release:perform -DreleaseVersion=1.7.0 -DdevelopmentVersion=1.7.1-SNAPSHOT
+mvn -Pdeploy release:prepare release:perform -DreleaseVersion=1.7 -DdevelopmentVersion=1.8-SNAPSHOT
 ----
