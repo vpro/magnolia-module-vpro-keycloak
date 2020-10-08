@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/vpro/magnolia-module-vpro-keycloak.svg?)](https://travis-ci.org/vpro/magnolia-module-vpro-keycloak)
+[![Build Status](https://travis-ci.com/vpro/magnolia-module-vpro-keycloak.svg?)](https://travis-ci.com/vpro/magnolia-module-vpro-keycloak)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/nl.vpro.magnolia/magnolia-module-vpro-keycloak/badge.svg?style=plastic)](https://maven-badges.herokuapp.com/maven-central/nl.vpro.magnolia/magnolia-module-vpro-keycloak)
 [![javadoc](http://www.javadoc.io/badge/nl.vpro.magnolia/magnolia-module-vpro-keycloak.svg?color=blue)](http://www.javadoc.io/doc/nl.vpro.magnolia/magnolia-module-vpro-keycloak)
 
