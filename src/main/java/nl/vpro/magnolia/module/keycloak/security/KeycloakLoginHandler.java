@@ -198,7 +198,7 @@ public class KeycloakLoginHandler extends LoginHandlerBase {
         if (StringUtils.isEmpty(request.getQueryString())) {
             return false;
         }
-        // code , state , session_state
+        // Check for oauth parameters:  code , state and session_state
         Map<String, String[]> parameterMap = request.getParameterMap();
         return parameterMap.containsKey("code") || parameterMap.containsKey("state") || parameterMap.containsKey("session_state");
     }
