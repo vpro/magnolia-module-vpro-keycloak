@@ -15,28 +15,17 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 import javax.inject.Inject;
 import javax.security.auth.Subject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+import javax.servlet.http.*;
 
 import org.apache.commons.lang3.StringUtils;
 import org.keycloak.KeycloakSecurityContext;
-import org.keycloak.adapters.AdapterDeploymentContext;
-import org.keycloak.adapters.AuthenticatedActionsHandler;
-import org.keycloak.adapters.KeycloakDeployment;
-import org.keycloak.adapters.PreAuthActionsHandler;
-import org.keycloak.adapters.servlet.FilterRequestAuthenticator;
-import org.keycloak.adapters.servlet.OIDCFilterSessionStore;
-import org.keycloak.adapters.servlet.OIDCServletHttpFacade;
-import org.keycloak.adapters.spi.AuthOutcome;
-import org.keycloak.adapters.spi.KeycloakAccount;
-import org.keycloak.adapters.spi.SessionIdMapper;
-import org.keycloak.adapters.spi.UserSessionManagement;
+import org.keycloak.adapters.*;
+import org.keycloak.adapters.servlet.*;
+import org.keycloak.adapters.spi.*;
 
 import nl.vpro.magnolia.module.keycloak.KeycloakModule;
 import nl.vpro.magnolia.module.keycloak.KeycloakService;
@@ -187,6 +176,9 @@ public class KeycloakLoginHandler extends LoginHandlerBase {
             // return STATUS_IN_PROCESS so that LoginFilter will halt the filter chain
             return new LoginResult(LoginResult.STATUS_IN_PROCESS);
         }
+        if (result.getStatus() == LoginResult.STATUS_SUCCEEDED && requiresRedirect(request)) {
+            return new LoginResult(LoginResult.STATUS_SUCCEEDED_REDIRECT_REQUIRED, result.getSubject());
+        }
         return result;
     }
 
@@ -200,5 +192,14 @@ public class KeycloakLoginHandler extends LoginHandlerBase {
         } catch (Exception e) {
             log.error("Unable to write to response body.", e);
         }
+    }
+
+    protected boolean requiresRedirect(HttpServletRequest request) {
+        if (StringUtils.isEmpty(request.getQueryString())) {
+            return false;
+        }
+        // code , state , session_state
+        Map<String, String[]> parameterMap = request.getParameterMap();
+        return parameterMap.containsKey("code") || parameterMap.containsKey("state") || parameterMap.containsKey("session_state");
     }
 }
