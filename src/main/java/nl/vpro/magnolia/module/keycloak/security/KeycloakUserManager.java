@@ -82,8 +82,10 @@ public class KeycloakUserManager extends ExternalUserManager {
     }
 
     private KeycloakUser getUser(OIDCFilterSessionStore.SerializableKeycloakAccount account) {
-        Map<String, String> properties = new HashMap<>();
+        final Map<String, String> properties = new HashMap<>();
         final AccessToken token = account.getKeycloakSecurityContext().getToken();
+
+        // Entity is deprecated, but what is it supposed to be replaced by?
         properties.put(Entity.NAME, account.getPrincipal().getName());
         properties.put(Entity.LANGUAGE, token.getLocale());
         properties.put(Entity.EMAIL, token.getEmail());

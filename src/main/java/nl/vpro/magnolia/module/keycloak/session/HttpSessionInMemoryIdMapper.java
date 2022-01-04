@@ -24,12 +24,11 @@ import org.keycloak.adapters.spi.SessionIdMapper;
 
 /**
  * @author rico
- * @date 07/07/2017
  */
 @Singleton
 @Slf4j
 public class HttpSessionInMemoryIdMapper implements SessionIdMapper, SessionStore {
-    private SessionIdMapper idMapper = new InMemorySessionIdMapper();
+    private final SessionIdMapper idMapper = new InMemorySessionIdMapper();
     private final Map<String, HttpSession> httpSessions = new ConcurrentHashMap<>();
     private final Map<String, String> sessionToPrincipal = new ConcurrentHashMap<>();
 

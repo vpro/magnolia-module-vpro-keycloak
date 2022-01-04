@@ -4,14 +4,13 @@
  */
 package nl.vpro.magnolia.module.keycloak.util;
 
-import com.google.common.net.HttpHeaders;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 
+import com.google.common.net.HttpHeaders;
+
 /**
  * @author rico
- * @date 07/07/2017
  */
 public class SSLTerminatedRequestWrapper extends HttpServletRequestWrapper {
 

@@ -22,7 +22,6 @@ import nl.vpro.magnolia.module.keycloak.util.MagnoliaPropertyResolver;
 
 /**
  * @author rico
- * @date 08/06/2017
  */
 @Singleton
 @Slf4j
@@ -51,7 +50,7 @@ public class KeycloakService {
                 deploymentContext = new AdapterDeploymentContext((KeycloakConfigResolver) resolverObject);
                 log.info("Using {} to resolve Keycloak configuration on a per-request basis.", configResolverClass);
             } catch (Exception ex) {
-                log.info("The specified resolver {} could NOT be loaded. Keycloak is unconfigured and will deny all requests. Reason: {}", new Object[]{configResolverClass, ex.getMessage()});
+                log.info("The specified resolver {} could NOT be loaded. Keycloak is unconfigured and will deny all requests. Reason: {}", configResolverClass, ex.getMessage());
                 deploymentContext = new AdapterDeploymentContext(new KeycloakDeployment());
             }
         } else {
@@ -76,7 +75,7 @@ public class KeycloakService {
         String property = null;
         try {
             property = magnoliaConfiguration.getProperty("keycloak.thisServer.sslPort");
-            sslPort = Integer.valueOf(property);
+            sslPort = Integer.parseInt(property);
         } catch (NumberFormatException nfe) {
             log.warn("Can not parse ssl port value {}, using default of 443", property);
         }

@@ -8,7 +8,6 @@ import javax.servlet.http.HttpSession;
 
 /**
  * @author rico
- * @date 07/07/2017
  */
 public interface SessionStore {
 

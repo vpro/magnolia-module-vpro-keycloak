@@ -35,7 +35,6 @@ import nl.vpro.magnolia.module.keycloak.util.SSLTerminatedRequestWrapper;
 
 /**
  * @author rico
- * @date 08/06/2017
  */
 @Slf4j
 public class KeycloakLoginHandler extends LoginHandlerBase {

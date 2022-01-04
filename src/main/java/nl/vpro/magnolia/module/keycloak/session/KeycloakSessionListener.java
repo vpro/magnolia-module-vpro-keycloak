@@ -12,7 +12,6 @@ import javax.servlet.http.HttpSessionListener;
 
 /**
  * @author rico
- * @date 07/07/2017
  */
 public class KeycloakSessionListener implements HttpSessionListener {
 

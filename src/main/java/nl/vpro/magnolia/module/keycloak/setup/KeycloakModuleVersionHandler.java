@@ -23,12 +23,11 @@ import nl.vpro.magnolia.module.keycloak.security.KeycloakUserManager;
 
 /**
  * @author rico
- * @date 08/06/2017
  */
 public class KeycloakModuleVersionHandler extends DefaultModuleVersionHandler {
 
     public static final String PROPERTY_CLASS = "class";
-    private Task setLogoutFilterClass = new CheckAndModifyPropertyValueTask("/server/filters/logout", PROPERTY_CLASS, LogoutFilter.class.getName(), KeycloakLogoutFilter.class.getName());
+    private final Task setLogoutFilterClass = new CheckAndModifyPropertyValueTask("/server/filters/logout", PROPERTY_CLASS, LogoutFilter.class.getName(), KeycloakLogoutFilter.class.getName());
 
     public KeycloakModuleVersionHandler() {
         register(DeltaBuilder.update("1.0", "")

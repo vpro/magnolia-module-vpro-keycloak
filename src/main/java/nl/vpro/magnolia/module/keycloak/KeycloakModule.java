@@ -20,7 +20,6 @@ import nl.vpro.magnolia.module.keycloak.config.KeycloakConfiguration;
 
 /**
  * @author rico
- * @date 08/06/2017
  */
 @Slf4j
 public class KeycloakModule implements ModuleLifecycle {
