@@ -111,6 +111,8 @@ public class KeycloakLoginHandler extends LoginHandlerBase {
                     if (sAccount != null) {
                         session.setAttribute(KeycloakAccount.class.getName(), sAccount);
                         session.setAttribute(KeycloakSecurityContext.class.getName(), sAccount.getKeycloakSecurityContext());
+                        // Update the idMapper, otherwise keycloak-attributes will not be available in the session-object
+                        idMapper.map(sAccount.getKeycloakSecurityContext().getToken().getSessionState(), principal.getName(), session.getId());
                     }
                 }
             }
