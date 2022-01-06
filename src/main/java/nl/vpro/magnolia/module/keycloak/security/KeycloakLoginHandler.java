@@ -30,6 +30,7 @@ import org.keycloak.adapters.spi.*;
 import nl.vpro.magnolia.module.keycloak.KeycloakModule;
 import nl.vpro.magnolia.module.keycloak.KeycloakService;
 import nl.vpro.magnolia.module.keycloak.config.KeycloakConfiguration;
+import nl.vpro.magnolia.module.keycloak.session.HttpSessionInMemoryIdMapper;
 import nl.vpro.magnolia.module.keycloak.session.PrincipalSessionStore;
 import nl.vpro.magnolia.module.keycloak.util.SSLTerminatedRequestWrapper;
 
@@ -104,18 +105,23 @@ public class KeycloakLoginHandler extends LoginHandlerBase {
         final HttpSession session = request.getSession(false);
         if (session != null) {
             Subject subject = (Subject) session.getAttribute(Subject.class.getName());
-            if (subject != null && session.getAttribute(KeycloakAccount.class.getName()) == null) {
+            if (subject != null) {
                 final User principal = PrincipalUtil.findPrincipal(subject, User.class);
                 if (principal != null) {
-                    OIDCFilterSessionStore.SerializableKeycloakAccount sAccount = principalSessionStore.get(principal.getName(), deployment.getRealm());
+                    OIDCFilterSessionStore.SerializableKeycloakAccount sAccount =
+                        (OIDCFilterSessionStore.SerializableKeycloakAccount) session.getAttribute(KeycloakAccount.class.getName());
+                    sAccount = sAccount != null ? sAccount : principalSessionStore.get(principal.getName(), deployment.getRealm());
                     if (sAccount != null) {
                         session.setAttribute(KeycloakAccount.class.getName(), sAccount);
                         session.setAttribute(KeycloakSecurityContext.class.getName(), sAccount.getKeycloakSecurityContext());
                         // Update the idMapper, otherwise keycloak-attributes will not be available in the session-object
-                        idMapper.map(sAccount.getKeycloakSecurityContext().getToken().getSessionState(), principal.getName(), session.getId());
+                        if (!idMapper.hasSession(session.getId())) {
+                            idMapper.map(sAccount.getKeycloakSecurityContext().getToken().getSessionState(), principal.getName(), session.getId());
+                        }
                     }
                 }
             }
+
         }
 
         // Check and refresh current session
@@ -124,7 +130,16 @@ public class KeycloakLoginHandler extends LoginHandlerBase {
         tokenStore.checkCurrentToken();
 
         FilterRequestAuthenticator authenticator = new FilterRequestAuthenticator(deployment, tokenStore, facade, request, keycloakService.getSslPort());
+
         AuthOutcome outcome = authenticator.authenticate();
+        // If we are already authenticated AND registered to the principal session store, we shouldn't try to authenticate again,
+        // because it will make Magnolia invalidate the session
+        if (outcome == AuthOutcome.AUTHENTICATED && session != null) {
+            OIDCFilterSessionStore.SerializableKeycloakAccount account = (OIDCFilterSessionStore.SerializableKeycloakAccount) session.getAttribute(KeycloakAccount.class.getName());
+            if (account != null && principalSessionStore.get(account.getPrincipal().getName(), deployment.getRealm()) != null) {
+                return LoginResult.NOT_HANDLED;
+            }
+        }
         if (outcome == AuthOutcome.AUTHENTICATED) {
             log.debug("AUTHENTICATED");
             // Store keycloak session information into the store
