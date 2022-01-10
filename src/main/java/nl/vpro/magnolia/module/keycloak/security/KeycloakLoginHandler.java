@@ -30,7 +30,6 @@ import org.keycloak.adapters.spi.*;
 import nl.vpro.magnolia.module.keycloak.KeycloakModule;
 import nl.vpro.magnolia.module.keycloak.KeycloakService;
 import nl.vpro.magnolia.module.keycloak.config.KeycloakConfiguration;
-import nl.vpro.magnolia.module.keycloak.session.HttpSessionInMemoryIdMapper;
 import nl.vpro.magnolia.module.keycloak.session.PrincipalSessionStore;
 import nl.vpro.magnolia.module.keycloak.util.SSLTerminatedRequestWrapper;
 
@@ -130,7 +129,7 @@ public class KeycloakLoginHandler extends LoginHandlerBase {
         tokenStore.checkCurrentToken();
 
         FilterRequestAuthenticator authenticator = new FilterRequestAuthenticator(deployment, tokenStore, facade, request, keycloakService.getSslPort());
-
+// test
         AuthOutcome outcome = authenticator.authenticate();
         // If we are already authenticated AND registered to the principal session store, we shouldn't try to authenticate again,
         // because it will make Magnolia invalidate the session
