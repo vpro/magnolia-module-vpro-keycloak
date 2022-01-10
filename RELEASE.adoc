@@ -1,4 +1,1 @@
-[source,bash]
-----
-mvn -Pdeploy release:prepare release:perform -DreleaseVersion=1.7 -DdevelopmentVersion=1.8-SNAPSHOT
-----
+Releases can be made via the github action, directly on the main branch.
