@@ -132,8 +132,8 @@ public class KeycloakLoginHandler extends LoginHandlerBase {
 
         AuthOutcome outcome = authenticator.authenticate();
         // If we are already authenticated AND registered to the principal session store, we shouldn't try to authenticate again,
-        // because it will make Magnolia invalidate the session
-        if (outcome == AuthOutcome.AUTHENTICATED && session != null) {
+        // because it will make Magnolia invalidate the session //test
+        if (outcome == AuthOutcome.AUTHENTICATED && session != null && session.getAttribute(Subject.class.getName()) != null) {
             OIDCFilterSessionStore.SerializableKeycloakAccount account = (OIDCFilterSessionStore.SerializableKeycloakAccount) session.getAttribute(KeycloakAccount.class.getName());
             if (account != null && principalSessionStore.get(account.getPrincipal().getName(), deployment.getRealm()) != null) {
                 // NOT_HANDLED doesn't merely mean it's not handled, but it also means that a user could already be authenticated
