@@ -21,10 +21,6 @@ jobs:
         distribution: 'temurin'
     - name: Build with Maven
       run: mvn -B -fn
-    - uses: codecov/codecov-action@v2
-      if: ${{ github.event_name == 'push' }}
-    - name: Publish Test Report
-      uses: scacap/action-surefire-report@v1
     - name: Deploy with Maven
       run: OSSRH_PASSWORD=${{ secrets.OSSRH_PASSWORD }} mvn -B -Ddeploy  -DskipTests=true -s $GITHUB_WORKSPACE/.github/settings.xml -Dgpg.skip=true
       if: ${{ github.event_name == 'push' }}
