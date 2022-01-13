@@ -126,9 +126,8 @@ public class KeycloakLoginHandler extends LoginHandlerBase {
      * We have to do this as LoginFilter invalidates the session on which this information is stored.
      */
     private void updateSessionAndIdMapper(final HttpServletRequest request, final KeycloakDeployment deployment,
-                                final SessionIdMapper idMapper) {
-        final Optional<HttpSession> httpSession = Optional.ofNullable(request.getSession(false));
-        httpSession.ifPresent(session -> getSubject(session)
+                                          final SessionIdMapper idMapper) {
+        Optional.ofNullable(request.getSession(false)).ifPresent(session -> getSubject(session)
             .flatMap(subject -> Optional.ofNullable(PrincipalUtil.findPrincipal(subject, User.class)))
             .ifPresent(principal ->
                 // Get account from session ...
@@ -152,36 +151,36 @@ public class KeycloakLoginHandler extends LoginHandlerBase {
      * If the user is (being) authenticated, get and set the right session- and Keycloak-properties
      */
     private LoginResult handleAuthenticated(final KeycloakDeployment deployment,
-                                            final HttpServletRequest request, HttpServletResponse response,
+                                            final HttpServletRequest request, final HttpServletResponse response,
                                             final OIDCServletHttpFacade facade) {
-        final Optional<HttpSession> httpSession = Optional.ofNullable(request.getSession(false));
-        return httpSession.flatMap(session -> getAccount(session)
-            .map(account -> getSubject(session)
-                // If we are already authenticated AND registered to the principal session store, we shouldn't try to authenticate again,
-                // because it will make Magnolia invalidate the session
-                .filter(subject -> principalSessionStore.get(account.getPrincipal().getName(), deployment.getRealm()) != null)
-                .map(principal -> LoginResult.NOT_HANDLED)
-                .orElseGet(() -> {
-                    log.debug("AUTHENTICATED");
-                    // Add account to session store
-                    principalSessionStore.add(account.getPrincipal().getName(), deployment.getRealm(), account);
-                    String tokenUrl = account.getKeycloakSecurityContext().getToken().getIssuer();
-                    String deploymentUrl = deployment.getRealmInfoUrl();
-                    if (!Objects.equals(tokenUrl, deploymentUrl)) {
-                        log.error("Deployment is not correct for this token: {} , {}", tokenUrl, deploymentUrl);
-                        log.error("Incoming url is : {} ", request.getRequestURL() + "?" + request.getQueryString());
-                    }
-                    return null;
-                })
-            )
-        ).orElseGet(() -> handleInitialLogin(deployment, request, response, facade));
+        return Optional.ofNullable(request.getSession(false))
+            .flatMap(session -> getAccount(session)
+                .map(account -> getSubject(session)
+                    // If we are already authenticated AND registered to the principal session store, we shouldn't try to authenticate again,
+                    // because it will make Magnolia invalidate the session
+                    .filter(subject -> principalSessionStore.get(account.getPrincipal().getName(), deployment.getRealm()) != null)
+                    .map(principal -> LoginResult.NOT_HANDLED)
+                    .orElseGet(() -> {
+                        log.debug("AUTHENTICATED");
+                        // Add account to session store
+                        principalSessionStore.add(account.getPrincipal().getName(), deployment.getRealm(), account);
+                        String tokenUrl = account.getKeycloakSecurityContext().getToken().getIssuer();
+                        String deploymentUrl = deployment.getRealmInfoUrl();
+                        if (!Objects.equals(tokenUrl, deploymentUrl)) {
+                            log.error("Deployment is not correct for this token: {} , {}", tokenUrl, deploymentUrl);
+                            log.error("Incoming url is : {} ", request.getRequestURL() + "?" + request.getQueryString());
+                        }
+                        return null;
+                    })
+                )
+            ).orElseGet(() -> handleInitialLogin(deployment, request, response, facade));
     }
 
     /**
      * Handle the initial login for every new session
      */
     private LoginResult handleInitialLogin(final KeycloakDeployment deployment, final HttpServletRequest request,
-                                           HttpServletResponse response, final OIDCServletHttpFacade facade) {
+                                           final HttpServletResponse response, final OIDCServletHttpFacade facade) {
         if (facade.isEnded()) {
             return jaasAuthenticate(request, response, deployment);
         }
