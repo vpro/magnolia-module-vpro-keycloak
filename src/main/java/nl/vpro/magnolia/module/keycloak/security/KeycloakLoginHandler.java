@@ -17,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
 
+import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import javax.security.auth.Subject;
 import javax.servlet.http.*;
@@ -75,7 +76,33 @@ public class KeycloakLoginHandler extends LoginHandlerBase {
         final SessionIdMapper idMapper = keycloakService.getIdMapper();
 
         // Handle the admin calls from keycloak
-        PreAuthActionsHandler preActions = new PreAuthActionsHandler(new UserSessionManagement() {
+        PreAuthActionsHandler preActions = getPreAuthActionsHandler(idMapper, deploymentContext, facade);
+
+        // Execute admin calls
+        if (preActions.handleRequest()) {
+            // We handled the keycloak admin calls, request is done.
+            return new LoginResult(LoginResult.STATUS_IN_PROCESS);
+        }
+        updateSessionAndIdMapper(request, deployment, idMapper);
+
+        // Check and refresh current session
+        keycloakService.getNodesRegistrationManagement().tryRegister(deployment);
+        OIDCFilterSessionStore tokenStore = new OIDCFilterSessionStore(request, facade, 100000, deployment, idMapper);
+        tokenStore.checkCurrentToken();
+
+        FilterRequestAuthenticator authenticator = new FilterRequestAuthenticator(deployment, tokenStore, facade, request, keycloakService.getSslPort());
+
+        AuthOutcome outcome = authenticator.authenticate();
+        if (outcome != AuthOutcome.AUTHENTICATED) {
+            return LoginResult.NOT_HANDLED;
+        }
+        return handleAuthenticated(deployment, request, response, facade);
+    }
+
+    private PreAuthActionsHandler getPreAuthActionsHandler(final SessionIdMapper idMapper,
+                                                           final AdapterDeploymentContext deploymentContext,
+                                                           final OIDCServletHttpFacade facade) {
+        return new PreAuthActionsHandler(new UserSessionManagement() {
             @Override
             public void logoutAll() {
                 if (idMapper != null) {
@@ -92,81 +119,85 @@ public class KeycloakLoginHandler extends LoginHandlerBase {
                 }
             }
         }, deploymentContext, facade);
+    }
 
-        // Execute admin calls
-        if (preActions.handleRequest()) {
-            // We handled the keycloak admin calls, request is done.
-            return new LoginResult(LoginResult.STATUS_IN_PROCESS);
-        }
-
-        // Restore keycloak session information into the current session.
-        // We have to do this as LoginFilter invalidates the session on which this information is stored.
-        final HttpSession session = request.getSession(false);
-        if (session != null) {
-            Subject subject = (Subject) session.getAttribute(Subject.class.getName());
-            if (subject != null) {
-                final User principal = PrincipalUtil.findPrincipal(subject, User.class);
-                if (principal != null) {
-                    OIDCFilterSessionStore.SerializableKeycloakAccount sAccount =
-                        (OIDCFilterSessionStore.SerializableKeycloakAccount) session.getAttribute(KeycloakAccount.class.getName());
-                    sAccount = sAccount != null ? sAccount : principalSessionStore.get(principal.getName(), deployment.getRealm());
-                    if (sAccount != null) {
-                        session.setAttribute(KeycloakAccount.class.getName(), sAccount);
-                        session.setAttribute(KeycloakSecurityContext.class.getName(), sAccount.getKeycloakSecurityContext());
+    /**
+     * Restore keycloak session information into the current session.
+     * We have to do this as LoginFilter invalidates the session on which this information is stored.
+     */
+    private void updateSessionAndIdMapper(final HttpServletRequest request, final KeycloakDeployment deployment,
+                                          final SessionIdMapper idMapper) {
+        Optional.ofNullable(request.getSession(false)).ifPresent(session -> getSubject(session)
+            .flatMap(subject -> Optional.ofNullable(PrincipalUtil.findPrincipal(subject, User.class)))
+            .ifPresent(principal ->
+                // Get account from session ...
+                Optional.ofNullable(getAccount(session)
+                        // .. and otherwise from the principal session store
+                        .orElseGet(() -> principalSessionStore.get(principal.getName(), deployment.getRealm())))
+                    // If account was found in either session or principal session store, handle idmapper-actions
+                    .ifPresent(account -> {
+                        session.setAttribute(KeycloakAccount.class.getName(), account);
+                        session.setAttribute(KeycloakSecurityContext.class.getName(), account.getKeycloakSecurityContext());
                         // Update the idMapper, otherwise keycloak-attributes will not be available in the session-object
                         if (!idMapper.hasSession(session.getId())) {
-                            idMapper.map(sAccount.getKeycloakSecurityContext().getToken().getSessionState(), principal.getName(), session.getId());
+                            idMapper.map(account.getKeycloakSecurityContext().getToken().getSessionState(), principal.getName(), session.getId());
                         }
-                    }
-                }
-            }
+                    })
+            )
+        );
+    }
 
+    /**
+     * If the user is (being) authenticated, get and set the right session- and Keycloak-properties
+     */
+    private LoginResult handleAuthenticated(final KeycloakDeployment deployment,
+                                            final HttpServletRequest request, final HttpServletResponse response,
+                                            final OIDCServletHttpFacade facade) {
+        return Optional.ofNullable(request.getSession(false))
+            .flatMap(session -> getAccount(session)
+                .map(account -> getSubject(session)
+                    // If we are already authenticated AND registered to the principal session store, we shouldn't try to authenticate again,
+                    // because it will make Magnolia invalidate the session
+                    .filter(subject -> principalSessionStore.get(account.getPrincipal().getName(), deployment.getRealm()) != null)
+                    .map(principal -> LoginResult.NOT_HANDLED)
+                    .orElseGet(() -> {
+                        log.debug("AUTHENTICATED");
+                        // Add account to session store
+                        principalSessionStore.add(account.getPrincipal().getName(), deployment.getRealm(), account);
+                        String tokenUrl = account.getKeycloakSecurityContext().getToken().getIssuer();
+                        String deploymentUrl = deployment.getRealmInfoUrl();
+                        if (!Objects.equals(tokenUrl, deploymentUrl)) {
+                            log.error("Deployment is not correct for this token: {} , {}", tokenUrl, deploymentUrl);
+                            log.error("Incoming url is : {} ", request.getRequestURL() + "?" + request.getQueryString());
+                        }
+                        return null;
+                    })
+                )
+            ).orElseGet(() -> handleInitialLogin(deployment, request, response, facade));
+    }
+
+    /**
+     * Handle the initial login for every new session
+     */
+    private LoginResult handleInitialLogin(final KeycloakDeployment deployment, final HttpServletRequest request,
+                                           final HttpServletResponse response, final OIDCServletHttpFacade facade) {
+        if (facade.isEnded()) {
+            return jaasAuthenticate(request, response, deployment);
         }
-
-        // Check and refresh current session
-        keycloakService.getNodesRegistrationManagement().tryRegister(deployment);
-        OIDCFilterSessionStore tokenStore = new OIDCFilterSessionStore(request, facade, 100000, deployment, idMapper);
-        tokenStore.checkCurrentToken();
-
-        FilterRequestAuthenticator authenticator = new FilterRequestAuthenticator(deployment, tokenStore, facade, request, keycloakService.getSslPort());
-
-        AuthOutcome outcome = authenticator.authenticate();
-        // If we are already authenticated AND registered to the principal session store, we shouldn't try to authenticate again,
-        // because it will make Magnolia invalidate the session
-        if (outcome == AuthOutcome.AUTHENTICATED && session != null) {
-            OIDCFilterSessionStore.SerializableKeycloakAccount account = (OIDCFilterSessionStore.SerializableKeycloakAccount) session.getAttribute(KeycloakAccount.class.getName());
-            if (account != null && principalSessionStore.get(account.getPrincipal().getName(), deployment.getRealm()) != null) {
-                // NOT_HANDLED doesn't merely mean it's not handled, but it also means that a user could already be authenticated
-                // This prevents LoginFilter to invalidate sessions for every request
-                return LoginResult.NOT_HANDLED;
-            }
+        AuthenticatedActionsHandler actions = new AuthenticatedActionsHandler(deployment, facade);
+        if (actions.handledRequest()) {
+            return new LoginResult(LoginResult.STATUS_IN_PROCESS);
+        } else {
+            return jaasAuthenticate(request, response, deployment);
         }
-        if (outcome == AuthOutcome.AUTHENTICATED) {
-            log.debug("AUTHENTICATED");
-            // Store keycloak session information into the store
-            // Required since LoginFilter destroys this information on login.
-            if (session != null) {
-                OIDCFilterSessionStore.SerializableKeycloakAccount account = (OIDCFilterSessionStore.SerializableKeycloakAccount) session.getAttribute(KeycloakAccount.class.getName());
-                principalSessionStore.add(account.getPrincipal().getName(), deployment.getRealm(), account);
-                String tokenUrl = account.getKeycloakSecurityContext().getToken().getIssuer();
-                String deploymentUrl = deployment.getRealmInfoUrl();
-                if (!Objects.equals(tokenUrl, deploymentUrl)) {
-                    log.error("Deployment is not correct for this token: {} , {}", tokenUrl, deploymentUrl);
-                    log.error("Incoming url is : {} ", request.getRequestURL() + "?" + request.getQueryString());
-                }
-            }
-            if (facade.isEnded()) {
-                return jaasAuthenticate(request, response, deployment);
-            }
-            AuthenticatedActionsHandler actions = new AuthenticatedActionsHandler(deployment, facade);
-            if (actions.handledRequest()) {
-                return new LoginResult(LoginResult.STATUS_IN_PROCESS);
-            } else {
-                return jaasAuthenticate(request, response, deployment);
-            }
-        }
+    }
 
-        return LoginResult.NOT_HANDLED;
+    private Optional<Subject> getSubject(@Nonnull final HttpSession session) {
+        return Optional.ofNullable((Subject) session.getAttribute(Subject.class.getName()));
+    }
+
+    private Optional<OIDCFilterSessionStore.SerializableKeycloakAccount> getAccount(@Nonnull final HttpSession session) {
+        return Optional.ofNullable((OIDCFilterSessionStore.SerializableKeycloakAccount) session.getAttribute(KeycloakAccount.class.getName()));
     }
 
     private LoginResult jaasAuthenticate(HttpServletRequest request, HttpServletResponse response, KeycloakDeployment keycloakDeployment) {
