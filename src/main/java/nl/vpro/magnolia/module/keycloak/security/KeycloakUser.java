@@ -18,4 +18,9 @@ public class KeycloakUser extends ExternalUser {
     protected KeycloakUser(Map<String, String> properties, GroupList groupList, RoleList roleList) {
         super(properties, groupList, roleList);
     }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + " " + getIdentifier() + " " + getRoles() + " " + getGroups();
+    }
 }
