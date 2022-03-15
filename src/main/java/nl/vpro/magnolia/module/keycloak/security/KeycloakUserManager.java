@@ -5,9 +5,7 @@
 package nl.vpro.magnolia.module.keycloak.security;
 
 import info.magnolia.cms.security.*;
-import info.magnolia.cms.security.auth.Entity;
-import info.magnolia.cms.security.auth.GroupList;
-import info.magnolia.cms.security.auth.RoleList;
+import info.magnolia.cms.security.auth.*;
 import info.magnolia.jaas.principal.GroupListImpl;
 import info.magnolia.jaas.principal.RoleListImpl;
 import info.magnolia.jcr.util.NodeNameHelper;
@@ -15,9 +13,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import javax.cache.annotation.CacheResult;
 import javax.inject.Inject;
@@ -26,6 +22,7 @@ import javax.security.auth.Subject;
 
 import org.keycloak.adapters.servlet.OIDCFilterSessionStore;
 import org.keycloak.representations.AccessToken;
+
 import com.google.inject.Provider;
 
 import nl.vpro.magnolia.jsr107.DefaultCacheSettings;
@@ -37,7 +34,22 @@ import nl.vpro.magnolia.module.keycloak.session.PrincipalSessionStore;
  */
 @Slf4j
 public class KeycloakUserManager extends ExternalUserManager {
+
     private static final String CACHE_NAME = "keycloak-user-manager-cache";
+
+    @SuppressWarnings("deprecation") // See https://jira.magnolia-cms.com/browse/DOCU-2413
+    public static final String FULL_NAME  = Entity.FULL_NAME;
+
+    @SuppressWarnings("deprecation") // See https://jira.magnolia-cms.com/browse/DOCU-2413
+    public static final String NAME       = Entity.NAME;
+
+    @SuppressWarnings("deprecation") // See https://jira.magnolia-cms.com/browse/DOCU-2413
+    public static final String EMAIL      = Entity.EMAIL;
+
+    @SuppressWarnings("deprecation") // See https://jira.magnolia-cms.com/browse/DOCU-2413
+    public static final String LANGUAGE   = Entity.LANGUAGE;
+
+
     private final Provider<PrincipalSessionStore> principalStoreProvider;
     private final Provider<SecuritySupport> securitySupportProvider;
     private final NodeNameHelper nodeNameHelper;
@@ -86,10 +98,10 @@ public class KeycloakUserManager extends ExternalUserManager {
         final AccessToken token = account.getKeycloakSecurityContext().getToken();
 
         // Entity is deprecated, but what is it supposed to be replaced by?
-        properties.put(Entity.NAME, account.getPrincipal().getName());
-        properties.put(Entity.LANGUAGE, token.getLocale());
-        properties.put(Entity.EMAIL, token.getEmail());
-        properties.put(Entity.FULL_NAME, token.getPreferredUsername());
+        properties.put(NAME, account.getPrincipal().getName());
+        properties.put(LANGUAGE, token.getLocale());
+        properties.put(EMAIL, token.getEmail());
+        properties.put(FULL_NAME, token.getPreferredUsername());
         properties.put("id", token.getId());
         properties.put("realm", keycloakRealm);
 
@@ -114,7 +126,7 @@ public class KeycloakUserManager extends ExternalUserManager {
                 group.getRoles().forEach(roleList::add);
                 // Deprecated: But it calls getSuperGroups which is strange. I would expect subgroups.
                 // LDAPUserManager does it as well and it is working.
-                groupManager.getAllGroups(groupName).forEach(subGroupName -> collect(subGroupName, groupList, roleList));
+                groupManager.getAllSuperGroups(groupName).forEach(subGroupName -> collect(subGroupName, groupList, roleList));
             }
         } catch (AccessDeniedException e) {
             log.error("Can not retrieve groups and roles for {} : {}", groupName, e.getMessage());
