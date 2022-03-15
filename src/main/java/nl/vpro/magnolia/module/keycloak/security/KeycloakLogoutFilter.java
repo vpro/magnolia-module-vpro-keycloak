@@ -57,7 +57,7 @@ public class KeycloakLogoutFilter extends LogoutFilter {
         try {
             encodedURI = URLEncoder.encode(String.valueOf(request.getRequestURL()), "UTF-8");
         } catch (UnsupportedEncodingException e) {
-            log.error("Can not encode url {}", encodedURI);
+            log.error("Can not encode url {}", request.getRequestURL());
         }
         return logoutUrl + "?redirect_uri=" + encodedURI;
     }
