@@ -15,6 +15,6 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode
 @AllArgsConstructor
 public class PrincipalKey {
-    private String name;
-    private String realm;
+    private final String name;
+    private final String realm;
 }
