@@ -4,6 +4,8 @@
 image:https://github.com/vpro/magnolia-module-vpro-keycloak/workflows/build/badge.svg?[Build Status,link=https://github.com/vpro/magnolia-module-vpro-keycloak/actions?query=workflow%3Abuild]
 image:https://maven-badges.herokuapp.com/maven-central/nl.vpro.magnolia/magnolia-module-vpro-keycloak/badge.svg?style=plastic[Maven Central,link=https://maven-badges.herokuapp.com/maven-central/nl.vpro.magnolia/magnolia-module-vpro-keycloak]
 image:http://www.javadoc.io/badge/nl.vpro.magnolia/magnolia-module-vpro-keycloak.svg?color=blue[javadoc,link=http://www.javadoc.io/doc/nl.vpro.magnolia/magnolia-module-vpro-keycloak]
+image:https://img.shields.io/nexus/s/https/oss.sonatype.org/nl.vpro.magnolia/magnolia-module-vpro-keycloak.svg[snapshots,link=https://oss.sonatype.org/content/repositories/snapshots/nl/vpro/magnolia/magnolia-module-vpro-keycloak/]
+
 
 
 Magnolia Module to make it possible to login into Magnolia using Keycloak
