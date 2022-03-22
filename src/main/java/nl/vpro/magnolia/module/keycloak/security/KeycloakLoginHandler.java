@@ -207,9 +207,9 @@ public class KeycloakLoginHandler extends LoginHandlerBase {
         if (account == null) {
             account = (KeycloakAccount) request.getSession().getAttribute(KeycloakAccount.class.getName());
         }
-        String principalName = account.getPrincipal().getName();
+        final String principalName = account.getPrincipal().getName();
 
-        CredentialsCallbackHandler callbackHandler = new PlainTextCallbackHandler(principalName, "".toCharArray());
+        final CredentialsCallbackHandler callbackHandler = new PlainTextCallbackHandler(principalName, "".toCharArray());
 
         final String configuredJaasChain = keycloakModule.getRealms().values().stream()
             .filter(config -> Objects.equals(keycloakDeployment.getRealm(), config.getRealmName()))
@@ -218,7 +218,7 @@ public class KeycloakLoginHandler extends LoginHandlerBase {
             .filter(StringUtils::isNotEmpty)
             .orElse(getJaasChain());
 
-        LoginResult result = authenticate(callbackHandler, configuredJaasChain);
+        final LoginResult result = authenticate(callbackHandler, configuredJaasChain);
         if (result.getSubject() == null) {
             handleUnrecognizedUser(request, response);
             // return STATUS_IN_PROCESS so that LoginFilter will halt the filter chain

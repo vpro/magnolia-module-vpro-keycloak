@@ -6,11 +6,17 @@ package nl.vpro.magnolia.module.keycloak.config;
 
 import info.magnolia.voting.voters.VoterSet;
 
+import lombok.Getter;
+
+import lombok.Setter;
+
 import org.keycloak.adapters.spi.HttpFacade;
 
 /**
  * @author r.jansen
  */
+@Getter
+@Setter
 public class KeycloakConfiguration {
     private String realmName;
 
@@ -18,27 +24,4 @@ public class KeycloakConfiguration {
 
     private VoterSet<HttpFacade.Request> voters;
 
-    public VoterSet<HttpFacade.Request> getVoters() {
-        return voters;
-    }
-
-    public void setVoters(VoterSet<HttpFacade.Request> voters) {
-        this.voters = voters;
-    }
-
-    public String getRealmName() {
-        return realmName;
-    }
-
-    public void setRealmName(String realmName) {
-        this.realmName = realmName;
-    }
-
-    public String getJaasChain() {
-        return jaasChain;
-    }
-
-    public void setJaasChain(String jaasChain) {
-        this.jaasChain = jaasChain;
-    }
 }

@@ -40,9 +40,9 @@ public class KeycloakLogoutFilter extends LogoutFilter {
 
     @Override
     protected String resolveLogoutRedirectLink(HttpServletRequest request) {
-        OIDCServletHttpFacade facade = new OIDCServletHttpFacade(new SSLTerminatedRequestWrapper(request), null);
+        final OIDCServletHttpFacade facade = new OIDCServletHttpFacade(new SSLTerminatedRequestWrapper(request), null);
         final AdapterDeploymentContext deploymentContext = keycloakService.getDeploymentContext();
-        KeycloakDeployment deployment = deploymentContext.resolveDeployment(facade);
+        final KeycloakDeployment deployment = deploymentContext.resolveDeployment(facade);
         String logoutUrl = properties.getProperty("keycloak.logout.url");
         if (deployment == null || !deployment.isConfigured()) {
             log.warn("deployment not configured");
@@ -52,12 +52,13 @@ public class KeycloakLogoutFilter extends LogoutFilter {
                 logoutUrl = properties.getProperty(logoutUrlKey);
             }
         }
-        String encodedURI = null;
+        String encodedURI;
 
         try {
-            encodedURI = URLEncoder.encode(String.valueOf(request.getRequestURL()), "UTF-8");
+            encodedURI = URLEncoder.encode(request.getRequestURL().toString(), "UTF-8");
         } catch (UnsupportedEncodingException e) {
             log.error("Can not encode url {}", request.getRequestURL());
+            encodedURI = request.getRequestURL().toString();
         }
         return logoutUrl + "?redirect_uri=" + encodedURI;
     }

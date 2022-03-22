@@ -40,9 +40,9 @@ public class KeycloakClientCallback extends AbstractHttpClientCallback {
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response) {
-        OIDCServletHttpFacade facade = new OIDCServletHttpFacade(new SSLTerminatedRequestWrapper(request), response);
+        final OIDCServletHttpFacade facade = new OIDCServletHttpFacade(new SSLTerminatedRequestWrapper(request), response);
         final AdapterDeploymentContext deploymentContext = keycloakService.getDeploymentContext();
-        KeycloakDeployment deployment = deploymentContext.resolveDeployment(facade);
+        final KeycloakDeployment deployment = deploymentContext.resolveDeployment(facade);
         if (deployment == null || !deployment.isConfigured()) {
             log.warn("deployment not configured");
             return;
