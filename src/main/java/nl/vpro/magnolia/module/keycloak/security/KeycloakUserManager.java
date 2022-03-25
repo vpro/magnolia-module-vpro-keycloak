@@ -28,6 +28,9 @@ import com.google.inject.Provider;
 import nl.vpro.magnolia.jsr107.DefaultCacheSettings;
 import nl.vpro.magnolia.module.keycloak.session.PrincipalSessionStore;
 
+import static nl.vpro.magnolia.module.keycloak.security.KeycloakUser.ID;
+import static nl.vpro.magnolia.module.keycloak.security.KeycloakUser.REALM;
+
 
 /**
  * @author r.jansen
@@ -102,8 +105,8 @@ public class KeycloakUserManager extends ExternalUserManager {
         properties.put(LANGUAGE, token.getLocale());
         properties.put(EMAIL, token.getEmail());
         properties.put(FULL_NAME, token.getPreferredUsername());
-        properties.put(KeycloakUser.ID_PROP, token.getId());
-        properties.put(KeycloakUser.REALM_PROP, keycloakRealm);
+        properties.put(ID, token.getId());
+        properties.put(REALM, keycloakRealm);
 
         // We map keycloak groups to roles, as that is more convenient to use
         // Then we collect all subgroups and their roles.

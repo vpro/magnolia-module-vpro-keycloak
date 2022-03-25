@@ -16,8 +16,8 @@ import java.util.UUID;
  */
 public class KeycloakUser extends ExternalUser {
 
-    public static final String ID_PROP = "id";
-    public static final String REALM_PROP = "realm";
+    public static final String ID = "id";
+    public static final String REALM = "realm";
 
     protected KeycloakUser(Map<String, String> properties, GroupList groupList, RoleList roleList) {
         super(properties, groupList, roleList);
@@ -29,10 +29,10 @@ public class KeycloakUser extends ExternalUser {
     }
 
     public UUID getId() {
-        return UUID.fromString(getProperty(ID_PROP));
+        return UUID.fromString(getProperty(ID));
     }
 
     public String getRealm() {
-        return getProperty(REALM_PROP);
+        return getProperty(REALM);
     }
 }
