@@ -32,6 +32,7 @@
     </developer>
   </developers>
 
+
   <scm>
     <connection>scm:git:${project.scm.url}.git</connection>
     <developerConnection>scm:git:${project.scm.url}.git</developerConnection>
@@ -179,7 +180,7 @@
             <version>1.6.5</version>
             <extensions>true</extensions>
             <configuration>
-              <serverId>vpro-ossrh</serverId>
+              <serverId>vpro-ossrh-release</serverId>
               <nexusUrl>https://oss.sonatype.org/</nexusUrl>
               <autoReleaseAfterClose>true</autoReleaseAfterClose>
             </configuration>
