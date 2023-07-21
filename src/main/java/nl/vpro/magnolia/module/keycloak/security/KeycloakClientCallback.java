@@ -17,6 +17,7 @@ import org.keycloak.adapters.servlet.*;
 import org.keycloak.adapters.spi.*;
 
 import nl.vpro.magnolia.module.keycloak.KeycloakService;
+import nl.vpro.magnolia.module.keycloak.util.MagnoliaReturnToRequestWrapper;
 import nl.vpro.magnolia.module.keycloak.util.SSLTerminatedRequestWrapper;
 
 /**
@@ -40,7 +41,8 @@ public class KeycloakClientCallback extends AbstractHttpClientCallback {
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response) {
-        final OIDCServletHttpFacade facade = new OIDCServletHttpFacade(new SSLTerminatedRequestWrapper(request), response);
+        MagnoliaReturnToRequestWrapper req = new MagnoliaReturnToRequestWrapper(request);
+        final OIDCServletHttpFacade facade = new OIDCServletHttpFacade(new SSLTerminatedRequestWrapper(req), response);
         final AdapterDeploymentContext deploymentContext = keycloakService.getDeploymentContext();
         final KeycloakDeployment deployment = deploymentContext.resolveDeployment(facade);
         if (deployment == null || !deployment.isConfigured()) {
@@ -50,10 +52,10 @@ public class KeycloakClientCallback extends AbstractHttpClientCallback {
         final SessionIdMapper idMapper = keycloakService.getIdMapper();
 
         keycloakService.getNodesRegistrationManagement().tryRegister(deployment);
-        OIDCFilterSessionStore tokenStore = new OIDCFilterSessionStore(request, facade, 100000, deployment, idMapper);
+        OIDCFilterSessionStore tokenStore = new OIDCFilterSessionStore(req, facade, 100000, deployment, idMapper);
         tokenStore.checkCurrentToken();
 
-        FilterRequestAuthenticator authenticator = new FilterRequestAuthenticator(deployment, tokenStore, facade, request, keycloakService.getSslPort());
+        FilterRequestAuthenticator authenticator = new FilterRequestAuthenticator(deployment, tokenStore, facade, req, keycloakService.getSslPort());
         AuthOutcome outcome = authenticator.authenticate();
         if (outcome != AuthOutcome.AUTHENTICATED) {
             AuthChallenge challenge = authenticator.getChallenge();
