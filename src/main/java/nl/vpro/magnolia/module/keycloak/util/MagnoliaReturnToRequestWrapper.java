@@ -7,6 +7,8 @@ import java.net.URLEncoder;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 
+import org.apache.commons.lang3.StringUtils;
+
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class MagnoliaReturnToRequestWrapper extends HttpServletRequestWrapper {
@@ -18,7 +20,7 @@ public class MagnoliaReturnToRequestWrapper extends HttpServletRequestWrapper {
     @Override
     public String getQueryString() {
         String q = super.getQueryString();
-        if (q == null || q.isEmpty()) {
+        if (StringUtils.isBlank(q)) {
             return FormLogin.PARAMETER_RETURN_TO + "=" + URLEncoder.encode(getRequestURI(), UTF_8);
         }
         return q + "&" + FormLogin.PARAMETER_RETURN_TO + "=" + URLEncoder.encode(getRequestURI() + "?" + q, UTF_8);
