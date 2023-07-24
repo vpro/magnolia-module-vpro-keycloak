@@ -45,7 +45,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <!-- Magnolia magnolia-enterprise-bundle version -->
     <magnolia.version>6.2.34</magnolia.version>
-    <magnolia.cache.version>5.9.5</magnolia.cache.version>
+    <magnolia.cache.version>5.9.4</magnolia.cache.version>
     <servlet-api.version>4.0.1</servlet-api.version>
     <keycloak.version>16.1.1</keycloak.version>
     <jsr107.magnolia.version>1.21</jsr107.magnolia.version>
