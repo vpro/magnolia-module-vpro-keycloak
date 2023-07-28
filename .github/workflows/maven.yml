@@ -23,7 +23,7 @@ jobs:
     - name: Create settings.xml
       uses: s4u/maven-settings-action@v2
       with:
-        servers: '[{"id": "vpro-ossrh", "username": "vpro", "password": "${{secrets.SONATYPE_PASSWORD}}"}]'
+        servers: '[{"id": "vpro-ossrh", "username": "vpro", "password": "${{secrets.SONATYPE_PASSWORD}}"}, {"id": "magnolia-enterprise", "username": "vpro-nexus", "password": "${{secrets.MAGNOLIANEXUS_PASSWORD}}"}]'
     - name: Import GPG key
       uses: crazy-max/ghaction-import-gpg@v3
       with:
