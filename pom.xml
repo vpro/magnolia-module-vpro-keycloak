@@ -247,6 +247,10 @@
       <url>https://nexus.magnolia-cms.com/content/groups/public</url>
     </repository>
     <repository>
+      <id>magnolia-enterprise</id>
+      <url>https://nexus.magnolia-cms.com/content/groups/enterprise</url>
+    </repository>
+    <repository>
       <id>ossrh</id>
       <url>https://oss.sonatype.org/content/repositories/snapshots</url>
       <releases>
